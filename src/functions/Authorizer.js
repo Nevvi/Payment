@@ -7,6 +7,7 @@ class Authorizer extends AbstractAuthorizer {
     generatePermissions(authPolicy, userId) {
         if (userId) {
             authPolicy.allowMethod(HttpVerb.POST, `/v1/token`)
+            authPolicy.allowMethod(HttpVerb.POST, `/v1/transaction`)
         } else {
             authPolicy.denyAllMethods()
         }

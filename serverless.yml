@@ -1,5 +1,5 @@
 service:
-  name: user
+  name: payment
 
 plugins:
   - serverless-prune-plugin
@@ -13,38 +13,27 @@ custom:
     number: 2
   serverless-iam-roles-per-function:
     defaultInherit: true
-  userTableNameMap:
-    default: user-dev
-    production: user
-  userTableName: ${self:custom.userTableNameMap.${self:provider.stage}, self:custom.userTableNameMap.default}
-  userTableArn: ${ssm:/nevvi/dynamodb/${self:custom.userTableName}/arn}
   domainNameMap:
     default: api.development.nevvi.net
     production: api.nevvi.net
   basePathMap:
-    production: user
-    development: user
-    default: ${self:provider.stage}-user
+    production: payment
+    development: payment
+    default: ${self:provider.stage}-payment
   customDomain:
     domainName: ${self:custom.domainNameMap.${self:provider.stage}, self:custom.domainNameMap.default}
     basePath: ${self:custom.basePathMap.${self:provider.stage}, self:custom.basePathMap.default}
-  apiUserPoolArnMap:
-    default: ${ssm:/nevvi/cognito/nevvi-development-api-users/arn}
-    production: ${ssm:/nevvi/cognito/nevvi-api-users/arn}
-  apiUserPoolArn: ${self:custom.apiUserPoolArnMap.${self:provider.stage}, self:custom.apiUserPoolArnMap.default}
 
 provider:
   name: aws
   runtime: nodejs12.x
   stage: ${opt:stage, 'test'}
   region: ${opt:region, 'us-east-1'}
-  apiName: user-${self:provider.stage}
-  stackName: user-${self:provider.stage}
+  apiName: payment-${self:provider.stage}
+  stackName: payment-${self:provider.stage}
   deploymentBucket:
     name: nevvi-serverless-deployment-bucket
   deploymentPrefix: ${self:provider.stage}
-  environment:
-    USER_TABLE: ${self:custom.userTableName}
 
 functions:
   paymentAuthorizer:
@@ -56,6 +45,16 @@ functions:
           path: /v1/token
           method: post
           authorizer:
-            name: userAuthorizer
+            name: paymentAuthorizer
+            resultTtlInSeconds: 0
+            type: request
+  createTransaction:
+    handler: src/functions/PaymentHandler.createTransaction
+    events:
+      - http:
+          path: /v1/transaction
+          method: post
+          authorizer:
+            name: paymentAuthorizer
             resultTtlInSeconds: 0
             type: request
