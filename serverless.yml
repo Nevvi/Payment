@@ -23,6 +23,15 @@ custom:
   customDomain:
     domainName: ${self:custom.domainNameMap.${self:provider.stage}, self:custom.domainNameMap.default}
     basePath: ${self:custom.basePathMap.${self:provider.stage}, self:custom.basePathMap.default}
+  merchantIdMap:
+    default: ${ssm:/nevvi/braintree/development-merchant-id~true}
+    production: ${ssm:/nevvi/braintree/merchant-id~true}
+  publicKeyMap:
+    default: "4sgpcpnnngn5p2jj"
+    production: "4sgpcpnnngn5p2jj"
+  privateKeyMap:
+    default: ${ssm:/nevvi/braintree/development-private-key~true}
+    production: ${ssm:/nevvi/braintree/private-key~true}
 
 provider:
   name: aws
@@ -34,6 +43,11 @@ provider:
   deploymentBucket:
     name: nevvi-serverless-deployment-bucket
   deploymentPrefix: ${self:provider.stage}
+  environment:
+    BRAINTREE_ENVIRONMENT: sandbox
+    MERCHANT_ID: ${self:custom.merchantIdMap.${self:provider.stage}, self:custom.merchantIdMap.default}
+    PUBLIC_KEY: ${self:custom.publicKeyMap.${self:provider.stage}, self:custom.publicKeyMap.default}
+    PRIVATE_KEY: ${self:custom.privateKeyMap.${self:provider.stage}, self:custom.privateKeyMap.default}
 
 functions:
   paymentAuthorizer:

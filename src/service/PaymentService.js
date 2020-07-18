@@ -5,10 +5,10 @@ const braintree = require("braintree");
 module.exports = class PaymentService {
     constructor() {
         this.gateway = braintree.connect({
-            environment: braintree.Environment.Sandbox,
-            merchantId: "27f4b9vkmdbvyj9s",
-            publicKey: "4sgpcpnnngn5p2jj",
-            privateKey: "e7fbf82366ba7106651c75a59f8a38f2"
+            environment: process.env.BRAINTREE_ENVIRONMENT === "production" ? braintree.Environment.Production : braintree.Environment.Sandbox,
+            merchantId: process.env.MERCHANT_ID,
+            publicKey: process.env.PUBLIC_KEY,
+            privateKey: process.env.PRIVATE_KEY
         });
     }
 
